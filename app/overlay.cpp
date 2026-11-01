@@ -340,14 +340,18 @@ void Overlay::render(const Settings& s, const FrameInput& in) {
     // Background: the chosen color for the person playing, but alpha 0 so OBS
     // ("Allow Transparency") captures it as transparent. The letterbox space
     // around the canvas gets the same clear. (SDL3 needs the draw color set
-    // again after switching targets.)
+    // again after switching targets.) A see-through window is composited as
+    // premultiplied, so a colored alpha-0 pixel still shows: clear to black.
+    const Uint8 bgR = s.transparentWindow ? 0 : (Uint8)s.bgColor.r;
+    const Uint8 bgG = s.transparentWindow ? 0 : (Uint8)s.bgColor.g;
+    const Uint8 bgB = s.transparentWindow ? 0 : (Uint8)s.bgColor.b;
     SDL_SetRenderTarget(r_, canvas_);
     SDL_SetRenderDrawBlendMode(r_, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(r_, (Uint8)s.bgColor.r, (Uint8)s.bgColor.g, (Uint8)s.bgColor.b, 0);
+    SDL_SetRenderDrawColor(r_, bgR, bgG, bgB, 0);
     SDL_RenderClear(r_);
     drawCanvas(s, L, in);
     SDL_SetRenderTarget(r_, nullptr);
-    SDL_SetRenderDrawColor(r_, (Uint8)s.bgColor.r, (Uint8)s.bgColor.g, (Uint8)s.bgColor.b, 0);
+    SDL_SetRenderDrawColor(r_, bgR, bgG, bgB, 0);
     SDL_RenderClear(r_);
 
     // Scale the canvas uniformly to the window. The canvas already holds the
