@@ -1,0 +1,63 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;800&display=swap" rel="stylesheet">
+<style>
+:root{--ground:#e9f0f7;--navy:#1d3557;--muted:#4f6a8a;--line:#d5e0ec;--ov:#0a205b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1180px;height:760px;overflow:hidden;background:var(--ground);font-family:"M PLUS Rounded 1c",sans-serif;color:var(--navy);font-size:14px}
+.top{height:52px;display:flex;align-items:center;gap:10px;padding:0 20px;background:#fff}
+.top h1{font-size:17px;font-weight:800}
+.tag{font-size:12px;color:var(--muted)}
+.sp{flex:1}
+.pill{height:30px;border-radius:999px;border:1.5px solid var(--navy);background:#fff;padding:0 14px;display:flex;align-items:center;font-weight:500;font-size:13px}
+.pill.on{background:var(--navy);color:#fff}.pill.quiet{border-color:var(--line);color:var(--muted)}
+.cv{position:absolute;left:170px;top:66px;width:840px;height:600px;background:var(--ov);box-shadow:0 0 0 1px #9fb2c8,0 0 0 8px #fff}
+.ring{position:absolute;border-radius:50%;border:40px solid #fff;background:#2a3f6e}
+.btn{position:absolute;border-radius:50%;border:5px solid #8aa0cc;color:#c9d6f0;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:40px}
+.btn.rect{border-radius:14px;font-size:24px}
+.btn.lit{background:#c9d6f0;color:var(--ov)}
+.btn.ghost{border:2px dashed #8aa0cc;color:#8aa0cc;background:transparent}
+.selb{outline:2px solid #fff;outline-offset:6px}
+.h{position:absolute;width:12px;height:12px;background:#fff;border:2px solid var(--navy)}
+.guide{position:absolute;border-top:1.5px dashed #9fd0ff}
+.coord{position:absolute;color:#fff;font-size:29px;font-weight:500}
+.drawer{position:absolute;right:20px;top:66px;width:132px;display:flex;flex-direction:column;gap:8px}
+.foot{position:absolute;left:20px;right:20px;bottom:16px;height:56px;background:#fff;border-radius:12px;display:flex;align-items:center;gap:12px;padding:0 18px}
+.foot b{font-size:15px;font-weight:800;width:100px}
+.fi{border:1.5px solid var(--line);border-radius:8px;height:34px;width:92px;display:flex;align-items:center;padding:0 10px;font-size:14px;gap:8px}
+.fi i{font-style:normal;color:var(--muted);font-size:11px;font-weight:800}
+.eye{width:34px;height:20px;border-radius:10px;background:var(--navy);position:relative}
+.eye::after{content:"";position:absolute;right:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#fff}
+.hint{font-size:12px;color:var(--muted)}
+.zoom{position:absolute;left:20px;top:66px;width:130px;display:flex;flex-direction:column;gap:8px}
+</style></head><body>
+<div class="top">
+ <h1>Layout editor</h1><span class="tag">Buttons left (copy) · 420 × 300 · 200%</span><div class="sp"></div>
+ <div class="pill quiet">Undo</div><div class="pill quiet">Redo</div>
+ <div class="pill on">Snap 8 px</div><div class="pill">Canvas size</div>
+ <div class="pill">Cancel</div><div class="pill on">Save layout</div>
+</div>
+<div class="zoom"><div class="pill on">200%</div><div class="pill">150%</div><div class="pill">Fit</div></div>
+<div class="cv">
+ <div class="ring" style="left:320px;top:32px;width:512px;height:512px"></div>
+ <div class="btn rect" style="left:40px;top:70px;width:100px;height:44px">L</div>
+ <div class="btn rect" style="left:190px;top:70px;width:100px;height:44px">R</div>
+ <div class="btn" style="left:24px;top:140px;width:124px;height:124px">X</div>
+ <div class="btn lit selb" style="left:170px;top:140px;width:124px;height:124px">A</div>
+ <div class="h" style="left:158px;top:128px"></div><div class="h" style="left:288px;top:128px"></div>
+ <div class="h" style="left:158px;top:258px"></div><div class="h" style="left:288px;top:258px"></div>
+ <div class="guide" style="left:0;top:140px;width:840px"></div>
+ <div class="btn" style="left:24px;top:280px;width:124px;height:124px">Y</div>
+ <div class="btn" style="left:170px;top:280px;width:124px;height:124px">B</div>
+ <div class="btn rect ghost" style="left:50px;top:430px;width:64px;height:56px">LT</div>
+ <div class="btn rect" style="left:200px;top:430px;width:64px;height:56px">RT</div>
+ <div class="coord" style="left:440px;top:544px">X: 0.00</div><div class="coord" style="left:607px;top:544px">Y: 0.00</div>
+</div>
+<div class="drawer"><div class="pill">Elements (21)</div><div class="pill quiet">2 hidden</div></div>
+<div class="foot">
+ <b>A button</b>
+ <div class="fi"><i>X</i>85</div><div class="fi"><i>Y</i>70</div><div class="fi"><i>W</i>62</div><div class="fi"><i>H</i>62</div>
+ <span>Show</span><span class="eye"></span><div class="sp"></div>
+ <span class="hint">Dashed = hidden on the overlay · click it to show</span>
+</div>
+</body></html>

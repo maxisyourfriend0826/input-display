@@ -1,0 +1,101 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;800&display=swap" rel="stylesheet">
+<style>
+:root{--ground:#e9f0f7;--panel:#fff;--navy:#1d3557;--muted:#4f6a8a;--line:#d5e0ec;--ov:#0a205b;--hover:#eef3f9}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1180px;height:760px;overflow:hidden;background:var(--ground);font-family:"M PLUS Rounded 1c",sans-serif;color:var(--navy);font-size:14px}
+.top{height:60px;display:flex;align-items:center;gap:12px;padding:0 20px}
+.top h1{font-size:19px;font-weight:800;margin-right:6px}
+.tag{font-size:12px;color:var(--muted);background:#fff;border-radius:999px;padding:3px 10px}
+.sp{flex:1}
+.pill{height:32px;border-radius:999px;border:1.5px solid var(--navy);background:#fff;padding:0 15px;display:flex;align-items:center;font-weight:500;font-size:13px}
+.pill.on{background:var(--navy);color:#fff}
+.pill.quiet{border-color:var(--line);color:var(--muted)}
+.key{font-size:10px;border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:6px;color:var(--muted)}
+.rail{position:absolute;left:20px;top:60px;width:250px;bottom:20px;background:#fff;border-radius:12px;padding:14px 0;overflow:hidden}
+.grp{font-size:12px;font-weight:800;padding:10px 16px 4px}
+.row{height:34px;display:flex;align-items:center;padding:0 16px;gap:10px;font-size:14px}
+.row .ic{width:22px;height:22px;border-radius:50%;background:#e3ebf4;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.row .nm{flex:1}
+.eye{width:30px;height:18px;border-radius:9px;background:var(--navy);position:relative}
+.eye::after{content:"";position:absolute;right:3px;top:3px;width:12px;height:12px;border-radius:50%;background:#fff}
+.eye.off{background:#fff;border:1.5px solid #9fb2c8}.eye.off::after{left:2px;top:2px;background:#9fb2c8}
+.row.sel{background:var(--navy);color:#fff}.row.sel .ic{background:#fff;color:var(--navy)}
+.row.sel .eye{background:#fff}.row.sel .eye::after{background:var(--navy)}
+.row.hid .nm{color:var(--muted);text-decoration:line-through}
+.live{width:7px;height:7px;border-radius:50%;background:var(--navy)}
+.stage{position:absolute;left:290px;top:60px;right:20px;bottom:20px;background:#fff;border-radius:12px;
+ background-image:radial-gradient(#cfdbe8 1px,transparent 1px);background-size:12px 12px}
+.cv{position:absolute;left:120px;top:60px;width:630px;height:450px;background:var(--ov);box-shadow:0 0 0 1px #9fb2c8}
+.cvlab{position:absolute;left:120px;top:36px;font-size:12px;color:var(--muted)}
+.ring{position:absolute;border-radius:50%;border:30px solid #fff;background:#2a3f6e}
+.btn{position:absolute;border-radius:50%;border:4px solid #37508a;color:#37508a;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:30px}
+.btn.rect{border-radius:12px;font-size:18px}
+.btn.lit{background:#c9d6f0;color:var(--ov);border-color:#c9d6f0}
+.sel{outline:2px solid #fff;outline-offset:5px}
+.h{position:absolute;width:10px;height:10px;background:#fff;border:2px solid var(--navy)}
+.guide{position:absolute;border-left:1.5px dashed #9fd0ff}
+.card{position:absolute;left:300px;top:150px;width:200px;background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 6px 20px rgba(13,30,60,.25)}
+.card b{font-size:15px;font-weight:800}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.fi{border:1.5px solid var(--line);border-radius:8px;height:32px;display:flex;align-items:center;padding:0 10px;font-size:13px;gap:8px}
+.fi i{font-style:normal;color:var(--muted);font-size:11px;font-weight:800}
+.sw{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:13px}
+.coord{position:absolute;color:#fff;font-size:22px;font-weight:500}
+.status{position:absolute;left:120px;top:524px;font-size:12px;color:var(--muted)}
+</style></head><body>
+<div class="top">
+ <h1>Layout editor</h1><span class="tag">Buttons left (copy) · 420 × 300</span>
+ <div class="sp"></div>
+ <div class="pill quiet">Undo<span class="key">Ctrl Z</span></div>
+ <div class="pill quiet">Redo</div>
+ <div class="pill on">Snap 8 px</div>
+ <div class="pill">Canvas 420 × 300</div>
+ <div class="pill">Cancel</div>
+ <div class="pill on">Save layout</div>
+</div>
+<div class="rail">
+ <div class="grp">Stick</div>
+ <div class="row"><span class="ic">◎</span><span class="nm">Ring</span><span class="eye"></span></div>
+ <div class="row"><span class="ic">•</span><span class="nm">Dot and line</span><span class="eye"></span></div>
+ <div class="grp">Face buttons</div>
+ <div class="row sel"><span class="ic">A</span><span class="nm">A</span><span class="live"></span><span class="eye"></span></div>
+ <div class="row"><span class="ic">B</span><span class="nm">B</span><span class="eye"></span></div>
+ <div class="row"><span class="ic">X</span><span class="nm">X</span><span class="eye"></span></div>
+ <div class="row"><span class="ic">Y</span><span class="nm">Y</span><span class="eye"></span></div>
+ <div class="grp">Shoulders and triggers</div>
+ <div class="row"><span class="ic">L</span><span class="nm">L</span><span class="eye"></span></div>
+ <div class="row"><span class="ic">R</span><span class="nm">R</span><span class="eye"></span></div>
+ <div class="row hid"><span class="ic">LT</span><span class="nm">LT</span><span class="eye off"></span></div>
+ <div class="grp">D-pad · Extras</div>
+ <div class="row"><span class="ic">✛</span><span class="nm">D-pad (4)</span><span class="eye"></span></div>
+ <div class="row"><span class="ic">S</span><span class="nm">Start</span><span class="eye"></span></div>
+ <div class="row"><span class="ic">☺</span><span class="nm">Toon</span><span class="eye"></span></div>
+ <div class="row"><span class="ic">xy</span><span class="nm">Coordinates</span><span class="eye"></span></div>
+</div>
+<div class="stage">
+ <div class="cvlab">Canvas · 150% · pad connected</div>
+ <div class="cv">
+  <div class="ring" style="left:240px;top:24px;width:384px;height:384px"></div>
+  <div class="btn rect" style="left:30px;top:52px;width:75px;height:33px">L</div>
+  <div class="btn rect" style="left:142px;top:52px;width:75px;height:33px">R</div>
+  <div class="btn" style="left:18px;top:105px;width:93px;height:93px">X</div>
+  <div class="btn lit sel" style="left:128px;top:105px;width:93px;height:93px">A</div>
+  <div class="h" style="left:118px;top:95px"></div><div class="h" style="left:216px;top:95px"></div>
+  <div class="h" style="left:118px;top:193px"></div><div class="h" style="left:216px;top:193px"></div>
+  <div class="guide" style="left:128px;top:0;height:450px"></div>
+  <div class="btn" style="left:18px;top:210px;width:93px;height:93px">Y</div>
+  <div class="btn" style="left:128px;top:210px;width:93px;height:93px">B</div>
+  <div class="btn rect" style="left:38px;top:322px;width:48px;height:42px">ZL</div>
+  <div class="btn rect" style="left:150px;top:322px;width:48px;height:42px">ZR</div>
+  <div class="coord" style="left:330px;top:408px">X: 0.00</div><div class="coord" style="left:455px;top:408px">Y: 0.00</div>
+ </div>
+ <div class="card">
+  <b>A button</b>
+  <div class="f"><div class="fi"><i>X</i>85</div><div class="fi"><i>Y</i>70</div><div class="fi"><i>W</i>62</div><div class="fi"><i>H</i>62</div></div>
+  <div class="sw">Show<span class="eye"></span></div>
+ </div>
+ <div class="status">Drag to move · corners resize · Alt moves freely · arrows nudge 1 px, Shift+arrow 8 px</div>
+</div>
+</body></html>

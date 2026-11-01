@@ -1,0 +1,16 @@
+{
+  "id": "sonic-x-shadow-generations",
+  "name": "Sonic X Shadow Generations",
+  "process": "SONIC_GENERATIONS.exe",
+  "profile": "sonic-generations-50",
+  "versions": [
+    {
+      "label": "Steam, exe built 2024-12-05",
+      "match": { "timeDateStamp": "0x6751B1F8", "sizeOfImage": "0x16919000" },
+      "values": {
+        "gameStickX": { "path": ["SONIC_GENERATIONS.exe+1E8C190"], "type": "float", "scale": 128 },
+        "gameStickY": { "path": ["SONIC_GENERATIONS.exe+1E8C194"], "type": "float", "scale": 128 }
+      }
+    }
+  ]
+}

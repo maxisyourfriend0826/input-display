@@ -1,0 +1,19 @@
+{
+  "name": "Sonic Generations, stick sensitivity 50",
+  "rules": [
+    {
+      "name": "M-speed",
+      "label": "M",
+      "regions": [
+        { "name": "north", "x": [-37, 39.9], "y": [37, 41.17] },
+        { "name": "south", "x": [-37, 37], "y": [-41, -38] },
+        { "name": "east", "x": [37, 41], "y": [-36, 38.32] },
+        { "name": "west", "x": [-41, -37], "y": [-36, 38.81] },
+        { "name": "up-right", "x": [36, 37], "y": [36, 37], "truncate": true },
+        { "name": "up-left", "x": [-37, -36], "y": [36, 37], "truncate": true },
+        { "name": "down-right", "x": [36, 37], "y": [-37, -36], "truncate": true },
+        { "name": "down-left", "x": [-37, -36], "y": [-37, -36], "truncate": true }
+      ]
+    }
+  ]
+}

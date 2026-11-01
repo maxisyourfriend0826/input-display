@@ -1,0 +1,46 @@
+{
+  "title": "Layout editor: choose the structure",
+  "question": "The look stays Console System Menu (pale blue, white panels, navy, rounded type). These are three ways to arrange the editor window. Lock one, steer, or re-roll.",
+  "options": [
+    {
+      "id": "editor-layers",
+      "kind": "assigned",
+      "label": "Layers rail + inspector by the selection",
+      "kicker": "THE ROLL",
+      "thesis": "A list of every element on the left, the canvas in the middle, and the selected element's X/Y/W/H in a small card right next to it.",
+      "palette": ["#e9f0f7", "#ffffff", "#1d3557", "#4f6a8a", "#0a205b"],
+      "materials": ["white 12px panels", "eye toggles per element", "dot grid canvas"],
+      "viewport": "Top bar: layout name, Undo/Redo, Snap 8 px, canvas size, Cancel/Save. Left: element list grouped Stick / Face / Shoulders / D-pad / Extras, each with a show/hide eye. Center: the canvas at 150% with handles on the selection and a floating number card beside it.",
+      "risk": "The floating card can cover the element next to the one you're editing; it has to dodge to the free side.",
+      "html": ".impeccable/mocks/decision/editor/editor-layers.html",
+      "htmlFrame": "1180x760"
+    },
+    {
+      "id": "editor-tiles",
+      "kind": "dealt",
+      "label": "Element tiles + footer inspector",
+      "thesis": "Elements picked from a whole-cell grid of their real icons, like the Button set grid in settings; numbers live in one footer strip.",
+      "palette": ["#e9f0f7", "#ffffff", "#1d3557", "#4f6a8a", "#0a205b"],
+      "materials": ["icon cells", "struck cell = hidden", "fixed footer strip"],
+      "viewport": "Top bar as before. Canvas large on the left. Right column: a 3-wide grid of element cells showing each button's art; a hidden element's cell is struck through; pressing a button on the pad lights its cell. Footer: selected element name, X Y W H fields, Show toggle.",
+      "risk": "The icon grid is tall with 21 elements; the stick, toon and text need non-icon cells.",
+      "html": ".impeccable/mocks/decision/editor/editor-tiles.html",
+      "htmlFrame": "1180x760"
+    },
+    {
+      "id": "editor-canvas",
+      "kind": "dealt",
+      "label": "Canvas first, drawer for the list",
+      "thesis": "The canvas owns the window at 200%; hidden elements stay on it as dashed ghosts you can click; the element list is a drawer you open when needed.",
+      "palette": ["#e9f0f7", "#ffffff", "#1d3557", "#4f6a8a", "#0a205b"],
+      "materials": ["dashed ghosts for hidden", "bottom selection strip", "slide-out drawer"],
+      "viewport": "Thin top toolbar. The canvas at 200% fills the window. A bottom strip shows the selection: name, X Y W H, Show, size lock. An Elements (21) button opens a right drawer with the list.",
+      "risk": "Dashed ghosts add clutter when many elements are hidden; the list is one click away.",
+      "html": ".impeccable/mocks/decision/editor/editor-canvas.html",
+      "htmlFrame": "1180x760"
+    }
+  ],
+  "reroll": true,
+  "steer": true,
+  "buildPath": { "value": "code" }
+}
