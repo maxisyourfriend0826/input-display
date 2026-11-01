@@ -49,7 +49,7 @@ const std::vector<Group>& groups() {
         { "D-pad", { { "Up", "Up", "" }, { "Down", "Down", "" }, { "Left", "Left", "" }, { "Right", "Right", "" } } },
         { "Extras",
           { { "S", "Start", "St" }, { "Select", "Select", "Se" }, { "L3", "Left stick click", "L3" }, { "R3", "Right stick click", "R3" },
-            { idisp::kToon, "Toon", "T" }, { idisp::kCoords, "Coordinates", "xy" } } },
+            { idisp::kCoords, "Coordinates", "xy" } } },
     };
     return g;
 }
@@ -89,7 +89,7 @@ int buttonIndex(const std::string& id) {
 bool isButton(const std::string& id) { return buttonIndex(id) >= 0; }
 bool isStick(const std::string& id) { return id == idisp::kStick || id == idisp::kStickR; }
 
-// An element exists when it has a box: the sticks, toon and text always do;
+// An element exists when it has a box: the sticks and text always do;
 // a button only when the layout places it; an image while it's in the layout.
 bool exists(const Layout& L, const std::string& id) {
     if (isButton(id)) return L.buttons.count(id) > 0;
@@ -107,7 +107,6 @@ Rect rectOf(const Layout& L, const std::string& id, int R) {
         const int d = (int)std::lround(2 * R * L.rightScale);
         return Rect{ L.rightX - d / 2, L.rightY - d / 2, d, d };
     }
-    if (id == idisp::kToon) return L.toonRect();
     if (id == idisp::kCoords) return L.coordsRect();
     if (const idisp::LayoutImage* im = L.image(id)) return im->rect;
     auto it = L.buttons.find(id);
@@ -117,7 +116,7 @@ Rect rectOf(const Layout& L, const std::string& id, int R) {
 // Width/height ratio an element keeps when resized (0 = free). An image keeps
 // the proportions it has.
 float lockedRatio(const Layout& L, const std::string& id) {
-    if (isStick(id) || id == idisp::kToon) return 1.0f;
+    if (isStick(id)) return 1.0f;
     if (id == idisp::kCoords) return (float)idisp::kCoordsW / idisp::kCoordsH;
     if (const idisp::LayoutImage* im = L.image(id)) return im->rect.h > 0 ? (float)im->rect.w / im->rect.h : 0;
     return 0;
@@ -131,8 +130,6 @@ void setRect(Layout& L, const std::string& id, Rect r, int R) {
         const int cx = r.x + r.w / 2, cy = r.y + r.w / 2;
         if (id == idisp::kStick) L.stickScale = scale, L.ringCenterX = cx, L.ringCenterY = cy;
         else L.rightScale = scale, L.rightX = cx, L.rightY = cy;
-    } else if (id == idisp::kToon) {
-        L.toon = r;
     } else if (id == idisp::kCoords) {
         r.h = std::max(1, (int)std::lround(r.w * (float)idisp::kCoordsH / idisp::kCoordsW));
         L.coords = r;
@@ -246,9 +243,7 @@ bool LayoutEditor::open(const std::string& assetsDir, const Layout& start) {
     ctx_ = ui::createContext(window_, renderer_, assetsDir, fonts_);
     work_ = start;
     work_.preset = false;
-    // The toon and the text follow the ring only while they have no box of
-    // their own; give them one so moving or resizing the ring leaves them be.
-    work_.toon = work_.toonRect();
+    // The text follows the ring only while it has no box of its own.
     work_.coords = work_.coordsRect();
     saved_ = work_;
     undo_.clear();
@@ -291,9 +286,6 @@ void LayoutEditor::close() {
     if (!window_) return;
     freeArt();
     freeImages();
-    if (toonTex_) SDL_DestroyTexture(toonTex_);
-    toonTex_ = nullptr;
-    toonPath_.clear();
     ui::destroyContext(ctx_);
     fonts_ = {};
     SDL_DestroyRenderer(renderer_);
@@ -770,9 +762,6 @@ void LayoutEditor::drawStage(const LayoutEditorInput& in) {
             dl()->AddText(F->body, fs, ImVec2(p.x, p.y + 2 * k), IM_COL32_WHITE, x);
             dl()->AddText(F->body, fs, ImVec2(p.x + 116 * k, p.y + 2 * k), IM_COL32_WHITE, y);
             dl()->AddText(F->head, 20 * k, ImVec2(p.x + 205 * k, p.y), in.lit ? rgb(kOrange) : IM_COL32_WHITE, "M");
-        } else if (id == idisp::kToon) {
-            const Rect r = work_.toonRect();
-            if (toonTex_) dl()->AddImage((ImTextureID)(intptr_t)toonTex_, S((float)r.x, (float)r.y), S((float)(r.x + r.w), (float)(r.y + r.h)));
         } else if (const idisp::LayoutImage* im = work_.image(id)) {
             const ImVec2 a = S((float)im->rect.x, (float)im->rect.y), b = S((float)(im->rect.x + im->rect.w), (float)(im->rect.y + im->rect.h));
             if (SDL_Texture* t = imageTex(im->file)) {
@@ -817,7 +806,7 @@ void LayoutEditor::drawStage(const LayoutEditorInput& in) {
         if (!drawn(work_, id)) continue;
         const Rect r = rectOf(work_, id, R);
         const ImVec2 a = S((float)r.x, (float)r.y), b = S((float)(r.x + r.w), (float)(r.y + r.h));
-        if (id == idisp::kToon || id == idisp::kCoords || idisp::isImageId(id)) dashedRect(a, b, kGhost);
+        if (id == idisp::kCoords || idisp::isImageId(id)) dashedRect(a, b, kGhost);
         else if (isStick(id) || art_[buttonIndex(id)]) dl()->AddRect(a, b, rgb(kGhost, 110), 0, 0, 1);
     }
     for (const auto& g : guides_) dashedLine(S(g[0], g[1]), S(g[2], g[3]), kGuide, 1.5f, 5);
@@ -856,18 +845,13 @@ void LayoutEditor::drawStage(const LayoutEditorInput& in) {
             float cost = (std::fabs(x - sp.x) + std::fabs(y - sp.y)) * 5;  // clamped into the stage
             cost += over(oa, ob) > 0 ? 100000 : 0;                           // never on the selection
             // Each covered element costs a lot (small ones are what you align
-            // against); the ring's open middle and the toon box cost little.
+            // against); the ring's open middle costs little.
             for (const std::string& id : allIds(work_)) {
                     if (id == selected_ || !drawn(work_, id)) continue;
                     const Rect q = rectOf(work_, id, R);
                     const float o2 = over(S((float)q.x, (float)q.y), S((float)(q.x + q.w), (float)(q.y + q.h)));
                     if (o2 <= 0) continue;
-                    if (id == idisp::kToon) {
-                        // The sprite sits in the bottom-right of its box: cost that part like a small element.
-                        const float sx = q.x + q.w * 0.58f, sy = q.y + q.h * 0.56f;
-                        const float so = over(S(sx, sy), S((float)(q.x + q.w), q.y + q.h * 0.98f));
-                        cost += o2 * 0.05f + (so > 0 ? 5000 + so : 0);
-                    } else if (id == idisp::kStick || id == idisp::kStickR || idisp::isImageId(id)) cost += o2 * 0.05f;
+                    if (id == idisp::kStick || id == idisp::kStickR || idisp::isImageId(id)) cost += o2 * 0.05f;
                     else cost += 5000 + o2;
                 }
             if (cost < bestCost) bestCost = cost, cardX_ = x, cardY_ = y;
@@ -1084,12 +1068,6 @@ LayoutEditorResult LayoutEditor::frame(const LayoutEditorInput& in) {
             }
         }
         if (!picked.empty()) addImage(picked);
-    }
-    if (in.toonPath != toonPath_) {
-        if (toonTex_) SDL_DestroyTexture(toonTex_);
-        toonTex_ = nullptr;
-        toonPath_ = in.toonPath;
-        if (!toonPath_.empty() && SDL_GetPathInfo(toonPath_.c_str(), nullptr)) toonTex_ = loadTexture(renderer_, toonPath_);
     }
     ImGui::SetCurrentContext(ctx_);
     ui::F = &fonts_;

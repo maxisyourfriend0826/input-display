@@ -6,11 +6,6 @@
 
 namespace idisp {
 
-Rect Layout::toonRect() const {
-    if (toon.w > 0) return toon;
-    return Rect{ ringCenterX - 136, ringCenterY - 136, 272, 272 };
-}
-
 Rect Layout::coordsRect() const {
     if (coords.w > 0) return coords;
     return Rect{ ringCenterX - 104, 278, kCoordsW, kCoordsH };
@@ -30,7 +25,7 @@ std::vector<std::string> Layout::drawOrder() const {
     std::vector<std::string> all;
     for (const auto& im : images) all.push_back(im.id);
     for (const char* b : kButtonNames) all.push_back(b);
-    for (const char* id : { kStickR, kStick, kCoords, kToon }) all.push_back(id);
+    for (const char* id : { kStickR, kStick, kCoords }) all.push_back(id);
     auto known = [&](const std::string& id) { return std::find(all.begin(), all.end(), id) != all.end(); };
     std::vector<std::string> out;
     for (const auto& id : order)
@@ -104,7 +99,6 @@ LayoutFile parseLayouts(const std::string& text, bool allowEmpty, std::vector<st
                 }
             if (jl.contains("order"))
                 for (const auto& o : jl["order"]) l.order.push_back(o.get<std::string>());
-            if (jl.contains("toon")) l.toon = readRect(jl["toon"], where + " toon");
             if (jl.contains("coords")) l.coords = readRect(jl["coords"], where + " coords");
             if (jl.contains("hidden"))
                 for (const auto& h : jl["hidden"]) l.hidden.insert(h.get<std::string>());
@@ -152,7 +146,6 @@ std::string serializeLayouts(const std::vector<Layout>& layouts) {
         rs["scale"] = l.rightScale;
         opts(rs, l.sticks[1]);
         jl["rightStick"] = rs;
-        if (l.toon.w > 0) jl["toon"] = rect(l.toon);
         if (l.coords.w > 0) jl["coords"] = rect(l.coords);
         if (!l.hidden.empty()) jl["hidden"] = l.hidden;
         nlohmann::ordered_json b = nlohmann::ordered_json::object();

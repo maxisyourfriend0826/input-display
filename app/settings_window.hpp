@@ -31,7 +31,6 @@ struct GameProbeInput {
 struct SettingsUiInput {
     std::vector<std::string> profiles;  // profile file names without .json
     const std::vector<std::string>* buttonSets = nullptr;
-    const std::vector<std::string>* toonSets = nullptr;
     const idisp::LayoutFile* layouts = nullptr;
     int overlayW = 0, overlayH = 0;  // overlay window size now, in pixels
     float overlayZoom = 1;           // how much the layout canvas is scaled to fit it
@@ -51,7 +50,7 @@ struct SettingsUiInput {
 
 struct SettingsUiResult {
     bool settingsChanged = false;  // anything in Settings
-    bool assetsChanged = false;    // button set / toon index
+    bool assetsChanged = false;    // button set index
     bool profileSelected = false;  // switched to another profile file
     bool saveSettings = false;
     bool toggleLogging = false;
@@ -85,7 +84,7 @@ private:
     Fonts fonts_;
     // Skin thumbnails, loaded into this window's renderer: Y, X, B, A per set.
     std::vector<std::array<SDL_Texture*, 4>> setThumbs_;
-    std::vector<SDL_Texture*> toonThumbs_;
+    bool practiceOpen_ = false;
     bool openDisplay_ = true, openInput_ = false, openMSpeed_ = false, openResearch_ = false;
     bool openRingSizes_ = false, openAdvanced_ = false;
     int confirmDelete_ = -1;  // layout whose Delete was clicked once

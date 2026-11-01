@@ -26,7 +26,6 @@ struct LayoutEditorInput {
     std::string imagesDir;       // user images folder (ends with a slash)
     std::vector<std::string> otherNames;  // names already used by other layouts
     std::string buttonSetDir;             // assets/sets/<set>/ : the button art drawn on the canvas
-    std::string toonPath;                 // the active toon's first frame ("" = toon off)
 };
 
 struct LayoutEditorResult {
@@ -88,8 +87,6 @@ private:
     float cardX_ = 0, cardY_ = 0, cardW_ = 236, cardH_ = 160;
     std::string artDir_;
     std::array<SDL_Texture*, idisp::kButtonCount> art_{};
-    std::string toonPath_;
-    SDL_Texture* toonTex_ = nullptr;
     bool lastWantText_ = false;  // a text field had focus last frame
     bool nameHot_ = false;       // name field hovered or active last frame
     bool cardVisible_ = false;

@@ -91,7 +91,7 @@ float rowLine(float y) {
     return y;
 }
 
-// A hint after a label: hotkeys (F1..F12) draw as a keycap, anything else as plain muted text.
+// A hint after a label: keycaps draw as keys, anything else as plain muted text.
 bool isKeycap(const char* k) { return k && k[0] == 'F' && k[1] >= '0' && k[1] <= '9'; }
 const float kGapKey = 7, kCapPad = 4;
 float hintWidth(const char* k) { return k ? kGapKey + textSize(F->small, k).x + (isKeycap(k) ? kCapPad * 2 : 0) : 0; }
@@ -403,15 +403,12 @@ void SettingsWindow::freeThumbs() {
     for (auto& set : setThumbs_)
         for (SDL_Texture* t : set)
             if (t) SDL_DestroyTexture(t);
-    for (SDL_Texture* t : toonThumbs_)
-        if (t) SDL_DestroyTexture(t);
     setThumbs_.clear();
-    toonThumbs_.clear();
 }
 
 void SettingsWindow::loadThumbs(const SettingsUiInput& in) {
-    const size_t sets = in.buttonSets ? in.buttonSets->size() : 0, toons = in.toonSets ? in.toonSets->size() : 0;
-    if (setThumbs_.size() == sets && toonThumbs_.size() == toons) return;
+    const size_t sets = in.buttonSets ? in.buttonSets->size() : 0;
+    if (setThumbs_.size() == sets) return;
     freeThumbs();
     auto load = [&](const std::string& path) {
         SDL_Texture* t = loadTexture(renderer_, path);
@@ -422,12 +419,22 @@ void SettingsWindow::loadThumbs(const SettingsUiInput& in) {
         const std::string dir = assets_ + "sets/" + (*in.buttonSets)[i] + "/butt";
         setThumbs_.push_back({ load(dir + "Y.png"), load(dir + "X.png"), load(dir + "B.png"), load(dir + "A.png") });
     }
-    for (size_t i = 0; i < toons; ++i) toonThumbs_.push_back(load(assets_ + "toons/" + (*in.toonSets)[i] + "/toon0.png"));
 }
 
 // ---- top tile: live stick and M-speed state --------------------------------------
 
 void SettingsWindow::drawTop(const Settings& s, const SettingsUiInput& in) {
+    const ImVec2 header = ImGui::GetCursorScreenPos();
+    const float headerW = ImGui::GetContentRegionAvail().x;
+    if (ImGui::InvisibleButton("##practice", ImVec2(headerW, kHeadH))) practiceOpen_ = !practiceOpen_;
+    handCursorIfHovered();
+    dl()->AddRectFilled(header, ImVec2(header.x + headerW, header.y + kHeadH), rgb(kPanel), kRadius);
+    text(F->head, ImVec2(header.x + kPad, header.y + (kHeadH - F->head->FontSize) * .5f - 1), kNavy, "Practice");
+    chevron(ImVec2(header.x + headerW - kPad - 4, header.y + kHeadH * .5f), practiceOpen_, kNavy);
+    if (!practiceOpen_) {
+        ImGui::Dummy(ImVec2(0, 10));
+        return;
+    }
     const ImVec2 o = ImGui::GetCursorScreenPos();
     const float w = ImGui::GetContentRegionAvail().x, h = 164;
     ImDrawList* d = dl();
@@ -502,7 +509,7 @@ void SettingsWindow::drawTop(const Settings& s, const SettingsUiInput& in) {
         text(F->pill, ImVec2(tx + 13, y + (26 - ts.y) * 0.5f), in.ruleLit ? kPanel : kMuted, pill);
         y += 26 + 10;
     }
-    std::string src = in.showingGame ? "Source: game value" : in.gameMissing ? "Source: pad (game not found)" : "Source: pad";
+    std::string src = in.showingGame ? "Source: game value" : in.gameMissing ? "No supported games detected" : "Source: pad";
     if (in.showingGame && !in.probe.game.empty()) src += " (" + in.probe.game + ")";
     const std::string lines[] = {
         src,
@@ -537,6 +544,13 @@ SettingsUiResult SettingsWindow::frame(Settings& s, idisp::Profile& /*profile*/,
                      ImGuiWindowFlags_NoScrollWithMouse);
 
     drawTop(s, in);
+    {
+        const ImVec2 o = ImGui::GetCursorScreenPos();
+        const float w = ImGui::GetContentRegionAvail().x;
+        dl()->AddRectFilled(o, ImVec2(o.x + w, o.y + 32), rgb(kNavy));
+        text(F->pill, ImVec2(o.x + 14, o.y + 8), kPanel, "Settings");
+        ImGui::Dummy(ImVec2(w, 40));
+    }
 
     bool changed = false;
     const float footH = 54;
@@ -548,7 +562,7 @@ SettingsUiResult SettingsWindow::frame(Settings& s, idisp::Profile& /*profile*/,
     if (panelBegin("display", "Display studio", "overlay, skin, layout, window", openDisplay_)) {
         sub("Overlay");
         static const std::vector<std::string> shapes = { "Rays", "Rays + cross", "Octagon", "Plain", "Ring", "Clock", "Dot only", "Target" };
-        if (rowSegmented("shape", "Shape", "F5", shapes, s.shapeIndex)) changed = true;
+        if (rowSegmented("shape", "Shape", nullptr, shapes, s.shapeIndex)) changed = true;
         changed |= rowSwatches("Outer ring: fill, outline", { { "rc", "Outer ring fill", &s.ringColor },
                                                               { "ro", "Outer ring outline", &s.ringOutlineColor } });
         changed |= rowSwatches("Inner ring: fill, outline", { { "ic", "Inner ring fill", &s.secondRingColor },
@@ -560,7 +574,7 @@ SettingsUiResult SettingsWindow::frame(Settings& s, idisp::Profile& /*profile*/,
         changed |= rowSwatches("Stick dot and line", { { "dc", "Stick dot", &s.joystickCircleColor },
                                                        { "lc", "Stick line", &s.stickColor } });
         changed |= rowToggle("clamp", "Keep the drawn stick inside the ring", nullptr, s.clampStickToRing);
-        changed |= rowToggle("dotTop", "Draw stick dots above images and the toon", nullptr, s.stickDotOnTop);
+        changed |= rowToggle("dotTop", "Draw stick dots above images", nullptr, s.stickDotOnTop);
         if (disclosure("sizes", "Ring sizes", openRingSizes_)) {
             changed |= rowSlider("orr", "Outer ring radius", nullptr, s.ringOuterRadius, 20, 140, "%d px");
             changed |= rowSlider("ort", "Outer ring thickness", nullptr, s.ringThickness, 5, 40, "%d px");
@@ -573,7 +587,7 @@ SettingsUiResult SettingsWindow::frame(Settings& s, idisp::Profile& /*profile*/,
         changed |= rowSlider("hold", "Keep lit after a hit", nullptr, s.hitHoldMs, 0, 100, "%d ms");
 
         sub("Buttons");
-        changed |= rowToggle("ghost", "Ghost buttons", "F6", s.staticButtonOverlay);
+        changed |= rowToggle("ghost", "Ghost buttons", nullptr, s.staticButtonOverlay);
         {
             int pct = (s.staticButtonOpacity * 100 + 127) / 255;  // stored 0-255, shown as a percentage
             if (rowSlider("ghosta", "Ghost opacity", nullptr, pct, 0, 100, "%d%%", s.staticButtonOverlay)) {
@@ -613,30 +627,7 @@ SettingsUiResult SettingsWindow::frame(Settings& s, idisp::Profile& /*profile*/,
             changed = res.assetsChanged = true;
         }
 
-        sub("Toon");
-        const int nToons = in.toonSets ? (int)in.toonSets->size() : 0;
-        const int toonSel = s.showToon ? s.toonIndex + 1 : 0;
-        pick = cellGrid("toons", nToons + 1, toonSel, 104, 78, [&](int i, ImVec2 a, ImVec2 b, bool on) {
-            const float cx = (a.x + b.x) * 0.5f;
-            if (i == 0) {
-                // Struck circle: no toon drawn.
-                const ImVec2 c(cx, a.y + 30);
-                dl()->AddCircle(c, 15, rgb(kMuted), 0, 2);
-                dl()->AddLine(ImVec2(c.x - 10, c.y + 10), ImVec2(c.x + 10, c.y - 10), rgb(kMuted), 2);
-                caption(a, b, b.y - 19, "Off", on);
-                return;
-            }
-            // Toon art sits in the bottom-right of its frame (it's placed around the ring).
-            image(toonThumbs_[i - 1], ImVec2(cx - 24, a.y + 6), ImVec2(cx + 24, a.y + 54), ImVec2(0.58f, 0.56f), ImVec2(1.0f, 0.98f));
-            caption(a, b, b.y - 19, capitalized((*in.toonSets)[i - 1]).c_str(), on);
-        });
-        if (pick >= 0 && pick != toonSel) {
-            s.showToon = pick > 0;
-            if (pick > 0) s.toonIndex = pick - 1;
-            changed = res.assetsChanged = true;
-        }
-
-        sub("Layout", "F7");
+        sub("Layout");
         if (in.layouts && !in.layouts->layouts.empty()) {
             const std::vector<idisp::Layout>& ls = in.layouts->layouts;
             const int n = (int)ls.size();
@@ -704,8 +695,8 @@ SettingsUiResult SettingsWindow::frame(Settings& s, idisp::Profile& /*profile*/,
         }
 
         sub("Overlay text");
-        changed |= rowToggle("coords", "Show coordinates", "F1", s.showCoordinates);
-        changed |= rowToggle("note", "Show \"game not found\" when the pad is drawn instead", nullptr, s.showSourceNote);
+        changed |= rowToggle("coords", "Show coordinates", nullptr, s.showCoordinates);
+        changed |= rowToggle("note", "Show \"no supported games detected\" when the pad is drawn instead", nullptr, s.showSourceNote);
 
         sub("Window");
         {
@@ -713,9 +704,9 @@ SettingsUiResult SettingsWindow::frame(Settings& s, idisp::Profile& /*profile*/,
             std::snprintf(size, sizeof size, "Size %d \xC3\x97 %d \xC2\xB7 %d%%", in.overlayW, in.overlayH,
                           (int)std::lround(in.overlayZoom * 100));
             if (rowButton("size", size, "Reset to 100%")) res.resetOverlaySize = true;
-            note("Drag the overlay window's edge to resize it. The layout keeps its proportions.");
+            note("Drag the overlay window's edge to resize it.");
         }
-        changed |= rowToggle("seethru", "See-through for OBS", "applies after restart", s.transparentWindow);
+        changed |= rowToggle("seethru", "Transparent Window", "applies after restart", s.transparentWindow);
         changed |= rowSwatches("Background", { { "bg", "Background (hidden in OBS capture)", &s.bgColor } });
     }
     panelEnd();
@@ -724,12 +715,12 @@ SettingsUiResult SettingsWindow::frame(Settings& s, idisp::Profile& /*profile*/,
     const std::string inputSummary = std::string(s.showGameStick ? "game value" : "pad") + (s.windowsXInputOnly ? " \xC2\xB7 XInput" : "");
     if (panelBegin("input", "Input", inputSummary, openInput_)) {
         int source = s.showGameStick ? 1 : 0;
-        if (rowSegmented("src", "Stick to draw", "F8", { "Pad", "Game value" }, source)) {
+        if (rowSegmented("src", "Stick to draw", nullptr, { "Pad", "Game value" }, source)) {
             s.showGameStick = source == 1;
             changed = true;
         }
         if (in.gameMissing) note("The game isn't running or can't be read, so the pad is drawn instead.");
-        changed |= rowToggle("dpad", "D-pad moves the stick", "F4", s.dpadMovesStick);
+        changed |= rowToggle("dpad", "D-pad moves the stick", nullptr, s.dpadMovesStick);
         changed |= rowToggle("xinput", "Read Xbox pads through XInput", "applies after restart", s.windowsXInputOnly);
         rowValue("Controller", in.controllerConnected ? in.controllerName : "None connected");
     }
@@ -739,7 +730,7 @@ SettingsUiResult SettingsWindow::frame(Settings& s, idisp::Profile& /*profile*/,
     const std::string mSummary = std::string(s.showRuleIndicator ? "light on" : "light off") + " \xC2\xB7 ring " +
                                  fmt("%.3f\xE2\x80\x93%.3f", s.gameRingMin, s.gameRingMax);
     if (panelBegin("mspeed", "M-speed", mSummary, openMSpeed_)) {
-        changed |= rowToggle("light", "Light up the overlay", "F3", s.showRuleIndicator);
+        changed |= rowToggle("light", "Light up the overlay", nullptr, s.showRuleIndicator);
         note(fmt("Lights when the game value is %.3f\xE2\x80\x93%.3f from centre, after the %.3f per-axis deadzone. "
                  "Glow colors are in Display studio.", s.gameRingMin, s.gameRingMax, s.gameDeadzone));
         if (disclosure("adv", "Advanced: deadzone and ring", openAdvanced_)) {

@@ -81,16 +81,13 @@ bool Overlay::init(SDL_Renderer* renderer, const std::string& assetsDir) {
     r_ = renderer;
     assets_ = assetsDir;
     buttonSets_ = listSets(assets_ + "sets", "buttA.png");
-    toonSets_ = listSets(assets_ + "toons", "toon0.png");
-    SDL_Log("Found %d button sets and %d toons", (int)buttonSets_.size(), (int)toonSets_.size());
+    SDL_Log("Found %d button sets", (int)buttonSets_.size());
     text_.load(r_, assets_ + "ARLRDBD.TTF", 17.0f);
     return true;
 }
 
 void Overlay::shutdown() {
     for (auto& t : buttonTex_) destroy(t);
-    for (auto& t : toon_) destroy(t);
-    for (auto& t : toonM_) destroy(t);
     destroyShapes();
     destroy(stickLayer_);
     destroy(canvas_);
@@ -107,17 +104,6 @@ void Overlay::loadButtonSet(int index) {
         const std::string path = dir + "butt" + idisp::kButtonNames[i] + ".png";
         // Sets without art for a button (e.g. Select, L3, R3) just don't draw it.
         if (SDL_GetPathInfo(path.c_str(), nullptr)) buttonTex_[i] = loadTexture(r_, path);
-    }
-}
-
-void Overlay::loadToonSet(int index) {
-    for (auto& t : toon_) destroy(t);
-    for (auto& t : toonM_) destroy(t);
-    if (toonSets_.empty()) return;
-    const std::string dir = assets_ + "toons/" + toonSets_[std::clamp(index, 0, (int)toonSets_.size() - 1)] + "/";
-    for (int i = 0; i < 8; ++i) {
-        toon_[i] = loadTexture(r_, dir + "toon" + std::to_string(i) + ".png");
-        toonM_[i] = loadTexture(r_, dir + "toonM" + std::to_string(i) + ".png");
     }
 }
 
@@ -340,7 +326,7 @@ void Overlay::render(const Settings& s, const FrameInput& in) {
     // Background: the chosen color for the person playing, but alpha 0 so OBS
     // ("Allow Transparency") captures it as transparent. The letterbox space
     // around the canvas gets the same clear. (SDL3 needs the draw color set
-    // again after switching targets.) A see-through window is composited as
+    // again after switching targets.) A transparent window is composited as
     // premultiplied, so a colored alpha-0 pixel still shows: clear to black.
     const Uint8 bgR = s.transparentWindow ? 0 : (Uint8)s.bgColor.r;
     const Uint8 bgG = s.transparentWindow ? 0 : (Uint8)s.bgColor.g;
@@ -482,14 +468,6 @@ void Overlay::drawCanvas(const Settings& s, const idisp::Layout& L, const FrameI
                 const std::string label = "  " + in.ruleLabel + "  ";
                 const float w = text_.width(label), h = text_.lineHeight();
                 if (w > 0 && h > 0) text_.draw(label, cr.x + 196 * k, (float)cr.y, 34.0f * k / w, 20.0f * k / h);
-            }
-        } else if (id == idisp::kToon) {
-            if (!s.showToon) continue;
-            const int frame = (int)((SDL_GetTicks() / 120) % 8);
-            SDL_Texture* t = lit ? toonM_[frame] : toon_[frame];
-            if (t) {
-                const SDL_FRect d = frect(L.toonRect());
-                SDL_RenderTexture(r_, t, nullptr, &d);
             }
         } else if (const idisp::LayoutImage* im = L.image(id)) {
             if (SDL_Texture* t = image(im->file)) {

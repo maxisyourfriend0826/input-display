@@ -15,11 +15,10 @@ struct Rgba {
 };
 
 struct Settings {
-    // Display toggles (hotkeys F1-F6)
+    // Display toggles
     bool showCoordinates = false;
-    bool showSourceNote = false;     // draw "pad (game not found)" on the overlay when the game value is chosen but unreadable
-    bool showRuleIndicator = false;  // F3, "M-speed light mode"
-    bool showToon = true;
+    bool showSourceNote = false;     // draw a source note when the game value is unavailable
+    bool showRuleIndicator = false;  // "M-speed light mode"
     bool dpadMovesStick = false;
     bool staticButtonOverlay = false;
     int staticButtonOpacity = 27;
@@ -55,19 +54,18 @@ struct Settings {
 
     // Window
     Rgba bgColor{ 0, 0, 0, 255 };
-    bool transparentWindow = false;  // see-through window (macOS/Linux capture); restart needed
+    bool transparentWindow = false;  // transparent OS window; restart needed
     int overlayWidth = 0;            // overlay window size as last left; 0 = the layout canvas size
     int overlayHeight = 0;
 
-    // Asset selection (arrow keys, F7)
+    // Asset selection
     int buttonSetIndex = 0;
-    int toonIndex = 0;
     int buttonLayoutIndex = 0;
 
     // Input
     std::string profile = "sonic-generations-50";
     bool windowsXInputOnly = true;   // read Xbox pads through XInput, like most PC games; restart needed
-    bool showGameStick = false;      // F8: draw the game's own stick value (memory) instead of the pad's
+    bool showGameStick = false;      // draw the game's own stick value (memory) instead of the pad's
 
     // Game stick (values -1..1, as the game stores them)
     bool gameApplyDeadzone = true;   // draw the game value with the deadzone added back, so it lines up with the pad

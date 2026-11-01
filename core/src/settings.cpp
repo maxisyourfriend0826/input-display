@@ -10,12 +10,11 @@ namespace idisp {
 const std::vector<Field>& settingsSchema() {
     using S = Settings;
     static const std::vector<Field> fields = {
-        { "showCoordinatesSwitch", "Show coordinates (F1)", "Display", &S::showCoordinates },
+        { "showCoordinatesSwitch", "Show coordinates", "Display", &S::showCoordinates },
         { "showSourceNote", "Show the game-not-found note", "Display", &S::showSourceNote },
-        { "toonSwitch", "Show toon (F2)", "Display", &S::showToon },
-        { "showMSpeedSwitch", "Rule light mode (F3)", "Display", &S::showRuleIndicator },
-        { "dPadSwitch", "D-pad moves stick (F4)", "Display", &S::dpadMovesStick },
-        { "staticButtonOverlaySwitch", "Ghost buttons (F6)", "Display", &S::staticButtonOverlay },
+        { "showMSpeedSwitch", "Rule light mode", "Display", &S::showRuleIndicator },
+        { "dPadSwitch", "D-pad moves stick", "Display", &S::dpadMovesStick },
+        { "staticButtonOverlaySwitch", "Ghost buttons", "Display", &S::staticButtonOverlay },
         { "staticButtonOpacity", "Ghost button opacity", "Display", &S::staticButtonOpacity, 0, 255 },
 
         { "circleSize", "Dot size", "Stick", &S::circleSize, 1, 20 },
@@ -31,7 +30,7 @@ const std::vector<Field>& settingsSchema() {
         { "secondGlowColor", "Second glow color", "Rule glow", &S::secondGlowColor },
         { "hitHoldMs", "Extra hold after a hit (ms)", "Rule glow", &S::hitHoldMs, 0, 100 },
 
-        { "shapeIndex", "Shape (F5)", "Rings", &S::shapeIndex, 0, 7 },
+        { "shapeIndex", "Shape", "Rings", &S::shapeIndex, 0, 7 },
         { "ringOuterRadius", "Outer ring radius", "Rings", &S::ringOuterRadius, 20, 140 },
         { "ringThickness", "Outer ring thickness", "Rings", &S::ringThickness, 5, 40 },
         { "ringColor", "Outer ring color", "Rings", &S::ringColor },
@@ -45,17 +44,16 @@ const std::vector<Field>& settingsSchema() {
         { "fill", "Fill color", "Rings", &S::fill, 0, 0, true },
 
         { "bg", "Background color", "Window", &S::bgColor },
-        { "transparentWindow", "See-through window (restart)", "Window", &S::transparentWindow },
+        { "transparentWindow", "Transparent Window (restart)", "Window", &S::transparentWindow },
         { "overlayWidth", "Overlay window width", "Window", &S::overlayWidth, 0, 0 },
         { "overlayHeight", "Overlay window height", "Window", &S::overlayHeight, 0, 0 },
 
-        { "ButtonSetIndex", "Button set (Left/Right)", "Assets", &S::buttonSetIndex, 0, 0 },
-        { "ToonIndex", "Toon (Up/Down)", "Assets", &S::toonIndex, 0, 0 },
-        { "buttonSetLayoutIndex", "Layout (F7)", "Assets", &S::buttonLayoutIndex, 0, 0 },
+        { "ButtonSetIndex", "Button set", "Assets", &S::buttonSetIndex, 0, 0 },
+        { "buttonSetLayoutIndex", "Layout", "Assets", &S::buttonLayoutIndex, 0, 0 },
 
         { "profile", "Rule profile", "Input", &S::profile },
         { "windowsXInputOnly", "Windows: read Xbox pads via XInput (restart)", "Input", &S::windowsXInputOnly },
-        { "showGameStick", "Show the game's stick value (F8)", "Input", &S::showGameStick },
+        { "showGameStick", "Show the game's stick value", "Input", &S::showGameStick },
 
         { "gameApplyDeadzone", "Apply deadzone to drawn game stick", "Game stick", &S::gameApplyDeadzone },
         { "gameDeadzone", "Game deadzone (per axis, also pad M-speed)", "Game stick", &S::gameDeadzone, 0.0f, 0.5f },
@@ -121,7 +119,7 @@ Settings parseSettings(const std::string& text) {
         }, f.member);
     }
     for (const auto& [k, v] : kv)
-        if (!used.count(k)) s.unknown[k] = v;
+        if (!used.count(k) && k != "toonSwitch" && k != "ToonIndex") s.unknown[k] = v;
     clampSettings(s);
     return s;
 }

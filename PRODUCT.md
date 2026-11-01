@@ -22,8 +22,7 @@ Reads the game's own stick value from memory and checks M-speed with the rule th
 
 ## Operating Context
 
-- Two windows: the overlay (captured in OBS, transparent background) and the settings window (opened with M).
-- Hotkeys: F4 d-pad mode, F5 shape, F7 layout, F8 game/pad source.
+- Two windows: the overlay (captured in OBS, transparent background) and the settings window (opened from the overlay gear).
 - Used beside a running game, often while streaming; settings changes must show on the overlay immediately.
 
 ## Capabilities and Constraints
@@ -36,7 +35,7 @@ Reads the game's own stick value from memory and checks M-speed with the rule th
 
 ## Brand Commitments
 
-Product name: Gens Input Display. Button sets and toon art in assets/ belong to the existing skins.
+Product name: Gens Input Display. Button sets in assets/ belong to the existing skins.
 
 ## Evidence on Hand
 

@@ -216,9 +216,6 @@ struct App {
         ei.litR = in.ruleLitR && settings.showRuleIndicator;
         ei.imagesDir = imagesDir();
         ei.otherNames = layoutNames(editIndex);
-        if (settings.showToon && !overlay.toonSets().empty())
-            ei.toonPath = assets + "toons/" +
-                          overlay.toonSets()[std::clamp(settings.toonIndex, 0, (int)overlay.toonSets().size() - 1)] + "/toon0.png";
         if (!overlay.buttonSets().empty())
             ei.buttonSetDir = assets + "sets/" +
                               overlay.buttonSets()[std::clamp(settings.buttonSetIndex, 0, (int)overlay.buttonSets().size() - 1)] + "/";
@@ -457,28 +454,53 @@ struct App {
         if (down) latched[i] = true;  // a press shorter than a frame still shows for one frame
     }
 
-    void cycle(int& index, int delta, int count) {
-        if (count <= 0) return;
-        index = ((index + delta) % count + count) % count;
+    bool hoverSettings() const {
+        return window && SDL_GetMouseFocus() == window && (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS);
     }
 
-    void onKey(SDL_Keycode k) {
-        switch (k) {
-        case SDLK_UP: cycle(settings.toonIndex, -1, (int)overlay.toonSets().size()); overlay.loadToonSet(settings.toonIndex); break;
-        case SDLK_DOWN: cycle(settings.toonIndex, 1, (int)overlay.toonSets().size()); overlay.loadToonSet(settings.toonIndex); break;
-        case SDLK_LEFT: cycle(settings.buttonSetIndex, -1, (int)overlay.buttonSets().size()); overlay.loadButtonSet(settings.buttonSetIndex); break;
-        case SDLK_RIGHT: cycle(settings.buttonSetIndex, 1, (int)overlay.buttonSets().size()); overlay.loadButtonSet(settings.buttonSetIndex); break;
-        case SDLK_F1: settings.showCoordinates = !settings.showCoordinates; break;
-        case SDLK_F2: settings.showToon = !settings.showToon; break;
-        case SDLK_F3: settings.showRuleIndicator = !settings.showRuleIndicator; break;
-        case SDLK_F4: settings.dpadMovesStick = !settings.dpadMovesStick; onReport(SDL_GetTicksNS(), stick.current()); break;
-        case SDLK_F5: cycle(settings.shapeIndex, 1, idisp::kShapeCount); overlay.markDirty(); break;
-        case SDLK_F6: settings.staticButtonOverlay = !settings.staticButtonOverlay; break;
-        case SDLK_F7: cycle(settings.buttonLayoutIndex, 1, (int)overlay.layouts().layouts.size()); overlay.markDirty(); break;
-        case SDLK_F8: settings.showGameStick = !settings.showGameStick; break;
-        case SDLK_M: settingsWindow.open(assets); break;
-        default: break;
+    void drawSettingsAffordance() {
+        if (!hoverSettings()) return;
+        // Overlay::render uses an off-screen canvas.  Explicitly restore the
+        // window target and its native coordinate system before adding chrome;
+        // otherwise the control is drawn into the canvas and enlarged with it.
+        SDL_SetRenderTarget(renderer, nullptr);
+        SDL_SetRenderScale(renderer, 1.0f, 1.0f);
+        SDL_SetRenderViewport(renderer, nullptr);
+        int w = 0, h = 0;
+        SDL_GetWindowSizeInPixels(window, &w, &h);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);
+        SDL_FRect veil{ 0, 0, (float)w, (float)h };
+        SDL_RenderFillRect(renderer, &veil);
+        const float size = 46, x = w - size - 14, y = 14;
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 230);
+        SDL_FRect button{ x, y, size, size };
+        SDL_RenderFillRect(renderer, &button);
+        SDL_SetRenderDrawColor(renderer, 18, 42, 78, 255);
+        const float cx = x + size * .5f, cy = y + size * .5f;
+        // A compact gear: eight teeth, a ring, and its center hole.
+        for (int i = 0; i < 8; ++i) {
+            const float a = i * 3.14159265f / 4.0f;
+            const float x1 = cx + std::cos(a) * 10, y1 = cy + std::sin(a) * 10;
+            const float x2 = cx + std::cos(a) * 15, y2 = cy + std::sin(a) * 15;
+            SDL_RenderLine(renderer, x1, y1, x2, y2);
         }
+        for (int r = 8; r <= 10; ++r)
+            for (int i = 0; i < 24; ++i) {
+                const float a = i * 3.14159265f / 12.0f, b = (i + 1) * 3.14159265f / 12.0f;
+                SDL_RenderLine(renderer, cx + std::cos(a) * r, cy + std::sin(a) * r,
+                               cx + std::cos(b) * r, cy + std::sin(b) * r);
+            }
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_FRect hole{ cx - 3, cy - 3, 6, 6 };
+        SDL_RenderFillRect(renderer, &hole);
+    }
+
+    bool clickedSettingsAffordance(const SDL_Event& e) const {
+        if (e.type != SDL_EVENT_MOUSE_BUTTON_DOWN || e.button.button != SDL_BUTTON_LEFT || SDL_GetWindowFromEvent(&e) != window || !hoverSettings()) return false;
+        int w = 0;
+        SDL_GetWindowSizeInPixels(window, &w, nullptr);
+        return e.button.x >= w - 60 && e.button.x <= w - 14 && e.button.y >= 14 && e.button.y <= 60;
     }
 
     void onEvent(const SDL_Event& e) {
@@ -491,8 +513,8 @@ struct App {
         case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
             if (SDL_GetWindowFromEvent(&e) == window) running = false;
             break;
-        case SDL_EVENT_KEY_DOWN:
-            if (!e.key.repeat && SDL_GetWindowFromEvent(&e) == window) onKey(e.key.key);
+        case SDL_EVENT_MOUSE_BUTTON_DOWN:
+            if (clickedSettingsAffordance(e)) settingsWindow.open(assets);
             break;
         case SDL_EVENT_GAMEPAD_ADDED:
             openPad(e.gdevice.which);
@@ -538,7 +560,7 @@ struct App {
         const StickUnits shown = shownUnits();
         in.unitsX = shown.x;
         in.unitsY = shown.y;
-        if (settings.showSourceNote && settings.showGameStick && !gameStickReadable()) in.sourceNote = "pad (game not found)";
+        if (settings.showSourceNote && settings.showGameStick && !gameStickReadable()) in.sourceNote = "no supported games detected";
         // Both monitors are asked every frame so neither keeps a stale latch;
         // the light follows whichever stick is drawn.
         const bool padLit = monitor.activeForFrame(0, nowNs, settings.hitHoldMs);
@@ -572,6 +594,7 @@ struct App {
         latched.fill(false);
 
         overlay.render(settings, in);
+        drawSettingsAffordance();
         SDL_RenderPresent(renderer);
 
         if (editor.isOpen()) drawEditor(in);
@@ -582,7 +605,6 @@ struct App {
         SettingsUiInput ui;
         ui.profiles = listProfiles();
         ui.buttonSets = &overlay.buttonSets();
-        ui.toonSets = &overlay.toonSets();
         ui.layouts = &overlay.layouts();
         SDL_GetWindowSize(window, &ui.overlayW, &ui.overlayH);
         {
@@ -644,7 +666,6 @@ struct App {
         if (r.deleteLayout >= 0) deleteLayout(r.deleteLayout);
         if (r.assetsChanged) {
             overlay.loadButtonSet(settings.buttonSetIndex);
-            overlay.loadToonSet(settings.toonIndex);
         }
         if (r.profileSelected) {
             loadProfile();
@@ -778,7 +799,6 @@ int main(int argc, char** argv) {
     app.loadUserLayouts();
     app.publishLayouts();
     app.overlay.loadButtonSet(app.settings.buttonSetIndex);
-    app.overlay.loadToonSet(app.settings.toonIndex);
     app.loadProfile();
     app.loadGames();
     app.rebuildGameRule();

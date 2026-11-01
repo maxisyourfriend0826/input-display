@@ -19,7 +19,7 @@ struct FrameInput {
     bool ruleLit = false;
     bool ruleLitR = false;          // the ring rule on the right stick's pad value
     std::string ruleLabel = "M";
-    std::string sourceNote;         // e.g. "pad (game not found)"; drawn top-left when set
+    std::string sourceNote;         // drawn top-left when set
 };
 
 class Overlay {
@@ -31,9 +31,7 @@ public:
     const idisp::LayoutFile& layouts() const { return layouts_; }
 
     const std::vector<std::string>& buttonSets() const { return buttonSets_; }
-    const std::vector<std::string>& toonSets() const { return toonSets_; }
     void loadButtonSet(int index);
-    void loadToonSet(int index);
 
     // Folder holding the layouts' images (user data, next to settings.ini).
     void setImagesDir(const std::string& dir) { imagesDir_ = dir; }
@@ -75,9 +73,8 @@ private:
     SDL_Renderer* r_ = nullptr;
     std::string assets_;
     idisp::LayoutFile layouts_;
-    std::vector<std::string> buttonSets_, toonSets_;
+    std::vector<std::string> buttonSets_;
     std::array<SDL_Texture*, idisp::kButtonCount> buttonTex_{};
-    std::array<SDL_Texture*, 8> toon_{}, toonM_{};
     std::array<ShapeTex, idisp::kShapeCount> shapes_{};
     std::string imagesDir_;
     std::map<std::string, SDL_Texture*> images_;  // by file name; nullptr = couldn't load

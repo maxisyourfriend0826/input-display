@@ -5,8 +5,8 @@ triggers live, lights up when the stick is in a game-specific zone (M-speed in
 Sonic Generations), and has a transparent background for OBS.
 
 This is a rebuild of Gens Input Display 4.43 (itself based on TurtleMan64's
-Sonic Input Display v2.2). It reads your old `settings.ini` and uses the same
-button sets and toons.
+Sonic Input Display v2.2). It reads compatible settings and uses the same
+button sets.
 
 ## What changed from 4.43
 
@@ -51,28 +51,18 @@ executable to keep your settings.
 `InputDisplay --demo` adds a virtual controller that circles the M-speed band.
 Use it to check the display or preview skins without a controller.
 
-## Hotkeys (overlay window focused)
+## Settings
 
-| Key | Action |
-|---|---|
-| F1 | Coordinates |
-| F2 | Toon |
-| F3 | M-speed light mode |
-| F4 | D-pad moves the stick |
-| F5 | Next ring shape |
-| F6 | Ghost buttons |
-| F7 | Next layout |
-| F8 | Draw the game's stick value (read from game memory) instead of the pad's |
-| Left / Right | Button set |
-| Up / Down | Toon |
-| M | Settings window |
+Hover the focused input display to reveal the settings control, then click the
+gear. The Practice card at the top of the settings window is collapsed by
+default and expands to show the live input preview and source information.
 
 ## OBS
 
 - **Windows:** Game Capture → "Capture specific window" → `Controller Input`,
   and tick **Allow Transparency**. The background colour you pick is what you
   see; OBS sees it as transparent.
-- **macOS / Linux:** tick "See-through window" in settings (restart needed) and
+- **macOS / Linux:** tick "Transparent Window" in settings (restart needed) and
   use a window capture. If your capture method drops transparency, set a
   solid background colour and add a Chroma Key filter. (Not yet tested on
   macOS/Linux.)
@@ -84,9 +74,9 @@ read-only way LiveSplit autosplitters read game memory. Supported games are
 JSON files in `assets/games/` (currently Sonic X Shadow Generations, Steam exe
 built 2024-12-05).
 
-- **F8** switches the drawn stick between the pad and the game. If the game
-  isn't running, the overlay keeps drawing the pad and says
-  `pad (game not found)` in the top-left corner.
+- Select the game stick in Settings → Input to switch the drawn stick between
+  the pad and the game. If the game isn't running, the overlay keeps drawing
+  the pad and can say `no supported games detected` in the top-left corner.
 - The M-speed light follows whichever stick is drawn, and each uses its own
   rule:
   - **Pad:** the v4.43 boxes from the rule profile (measured in pad units).
@@ -114,7 +104,7 @@ built 2024-12-05).
 core/      input normalization, rule regions, settings schema, layouts (no SDL, unit tested)
 app/       SDL3 window, drawing (ported from 4.43), ImGui settings window, main loop
 tests/     unit tests + legacy_v443.hpp, a verbatim copy of the 4.43 math used as reference
-assets/    sets/, toons/, profiles/, games/ (game memory definitions), layouts.json, font
+assets/    sets/, profiles/, games/ (game memory definitions), layouts.json, font
 ```
 
 To add a setting, add a member to `Settings` and a row to `settingsSchema()`.

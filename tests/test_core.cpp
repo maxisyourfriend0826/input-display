@@ -126,7 +126,8 @@ TEST_CASE("a v4.43 settings.ini loads with the same values") {
     CHECK(s.fill.a == 50);
     CHECK(s.shapeIndex == 4);
     CHECK(s.buttonSetIndex == 3);
-    CHECK(s.toonIndex == 2);
+    CHECK(s.unknown.count("toonSwitch") == 0);
+    CHECK(s.unknown.count("ToonIndex") == 0);
     // Old threshold keys are kept, not lost, when the file is saved again.
     CHECK(s.unknown.at("NorthYCeil") == "41.17");
     Settings again = parseSettings(serializeSettings(s));
@@ -158,7 +159,6 @@ TEST_CASE("a layout without the new fields keeps the v4.43 placement") {
     CHECK(l.width == 420);
     CHECK(l.height == 300);
     CHECK(l.stickScale == 1.0f);
-    CHECK(l.toonRect() == Rect{ 152, 8, 272, 272 });     // ring center - 136
     CHECK(l.coordsRect() == Rect{ 184, 278, kCoordsW, kCoordsH });  // x: ring center - 104
     CHECK(l.shown(kStick));
 }
@@ -171,11 +171,10 @@ TEST_CASE("user layouts round-trip, and an empty user file is allowed") {
     l.ringCenterX = 300;
     l.ringCenterY = 130;
     l.stickScale = 0.75f;
-    l.toon = Rect{ 1, 2, 100, 100 };
     l.coords = Rect{ 5, 230, 115, 11 };
     l.buttons["A"] = Rect{ 10, 20, 30, 40 };
     l.buttons["Select"] = Rect{ 50, 60, 16, 16 };
-    l.hidden = { "LT", kToon };
+    l.hidden = { "LT" };
     LayoutFile back = parseLayouts(serializeLayouts({ l }), true);
     REQUIRE(back.layouts.size() == 1);
     CHECK(back.layouts[0] == l);
@@ -193,7 +192,7 @@ TEST_CASE("right stick, stick options, images and layers round-trip") {
     l.sticks[1] = { kShapeDotOnly, true };
     l.images.push_back({ "img1", "ring.png", Rect{ 0, 0, 200, 200 } });
     l.images.push_back({ "img2", "frame-2.png", Rect{ 5, 5, 50, 40 } });
-    l.order = { "img2", kToon, kStick };
+    l.order = { "img2", kStick };
     LayoutFile back = parseLayouts(serializeLayouts({ l }), true);
     REQUIRE(back.layouts.size() == 1);
     CHECK(back.layouts[0] == l);
@@ -204,18 +203,17 @@ TEST_CASE("layer order: missing images go to the bottom, other elements on top")
     l.images.push_back({ "img1", "a.png", Rect{ 0, 0, 4, 4 } });
     l.images.push_back({ "img2", "b.png", Rect{ 0, 0, 4, 4 } });
     std::vector<std::string> d = l.drawOrder();  // default order
-    REQUIRE(d.size() == 2 + kButtonCount + 4);
+    REQUIRE(d.size() == 2 + kButtonCount + 3);
     CHECK(d[0] == "img1");
     CHECK(d[1] == "img2");
-    CHECK(d[d.size() - 4] == kStickR);
-    CHECK(d[d.size() - 3] == kStick);
-    CHECK(d.back() == kToon);
-    l.order = { kToon, "img1", "nope", kToon };  // unknown and repeated ids are dropped
+    CHECK(d[d.size() - 3] == kStickR);
+    CHECK(d[d.size() - 2] == kStick);
+    CHECK(d.back() == kCoords);
+    l.order = { "img1", "nope", "img1" };  // unknown and repeated ids are dropped
     d = l.drawOrder();
     CHECK(d[0] == "img2");  // not in the order: bottom
-    CHECK(d[1] == kToon);
-    CHECK(d[2] == "img1");
-    CHECK(d.size() == 2 + kButtonCount + 4);
+    CHECK(d[1] == "img1");
+    CHECK(d.size() == 2 + kButtonCount + 3);
 }
 
 TEST_CASE("old layouts hide the right stick; image files must be plain names") {

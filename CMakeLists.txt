@@ -37,6 +37,7 @@ endif()
 # ---- app -------------------------------------------------------------------
 if(IDISP_BUILD_APP)
     add_executable(InputDisplay
+        app/icon.rc
         app/main.cpp
         app/draw.cpp
         app/overlay.cpp
@@ -55,5 +56,7 @@ if(IDISP_BUILD_APP)
     # Ship assets next to the executable.
     add_custom_command(TARGET InputDisplay POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
-                ${CMAKE_CURRENT_SOURCE_DIR}/assets $<TARGET_FILE_DIR:InputDisplay>/assets)
+                ${CMAKE_CURRENT_SOURCE_DIR}/assets $<TARGET_FILE_DIR:InputDisplay>/assets
+        # Remove this obsolete directory from an incremental build output too.
+        COMMAND ${CMAKE_COMMAND} -E remove_directory $<TARGET_FILE_DIR:InputDisplay>/assets/toons)
 endif()

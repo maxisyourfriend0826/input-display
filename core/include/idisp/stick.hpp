@@ -31,7 +31,7 @@ inline StickUnits toUnitsLegacy(RawStick s) {
     return { axisToUnitsLegacy(s.x, false), axisToUnitsLegacy(s.y, true) };
 }
 
-// D-pad mode (F4): the d-pad pushes the stick fully in that direction.
+// D-pad mode: the d-pad pushes the stick fully in that direction.
 // Right wins over left and up over down, as in v4.43.
 inline StickUnits applyDpad(StickUnits u, bool up, bool down, bool left, bool right) {
     if (right) u.x = 128.0f;

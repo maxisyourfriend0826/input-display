@@ -19,7 +19,6 @@ inline constexpr size_t kButtonCount = kButtonNames.size();
 // Element ids that aren't buttons.
 inline constexpr const char* kStick = "stick";    // the left stick
 inline constexpr const char* kStickR = "stickR";  // the right stick (hidden unless a layout places it)
-inline constexpr const char* kToon = "toon";
 inline constexpr const char* kCoords = "coords";
 
 struct Rect {
@@ -67,20 +66,18 @@ struct Layout {
     int rightX = 96, rightY = 204;  // right stick center
     float rightScale = 0.5f;
     std::array<StickOptions, 2> sticks;  // [0] left, [1] right
-    Rect toon;                      // w == 0: v4.43 default around the ring
     Rect coords;                    // w == 0: v4.43 default under the ring
     std::map<std::string, Rect> buttons;  // keyed by kButtonNames
-    std::set<std::string> hidden;         // element ids (kStick, kStickR, kToon, kCoords, button names, image ids)
+    std::set<std::string> hidden;         // element ids (kStick, kStickR, kCoords, button names, image ids)
     std::vector<LayoutImage> images;
     std::vector<std::string> order;       // layers, bottom first; empty = the default order
 
     bool shown(const std::string& id) const { return hidden.count(id) == 0; }
-    Rect toonRect() const;
     Rect coordsRect() const;
     const LayoutImage* image(const std::string& id) const;
     // Every element id, bottom layer first. Ids missing from `order` are
     // added: images at the bottom, everything else on top, in the default
-    // order (images, buttons, right stick, left stick, coordinates, toon).
+    // order (images, buttons, right stick, left stick, coordinates).
     std::vector<std::string> drawOrder() const;
     bool operator==(const Layout&) const = default;
 };
