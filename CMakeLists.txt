@@ -58,5 +58,8 @@ if(IDISP_BUILD_APP)
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
                 ${CMAKE_CURRENT_SOURCE_DIR}/assets $<TARGET_FILE_DIR:InputDisplay>/assets
         # Remove this obsolete directory from an incremental build output too.
-        COMMAND ${CMAKE_COMMAND} -E remove_directory $<TARGET_FILE_DIR:InputDisplay>/assets/toons)
+        COMMAND ${CMAKE_COMMAND} -E remove_directory $<TARGET_FILE_DIR:InputDisplay>/assets/toons
+        COMMAND ${CMAKE_COMMAND} -E rm -f $<TARGET_FILE_DIR:InputDisplay>/assets/ARLRDBD.TTF
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${CMAKE_CURRENT_SOURCE_DIR}/THIRD-PARTY-NOTICES.txt $<TARGET_FILE_DIR:InputDisplay>)
 endif()

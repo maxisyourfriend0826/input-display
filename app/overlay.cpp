@@ -82,7 +82,7 @@ bool Overlay::init(SDL_Renderer* renderer, const std::string& assetsDir) {
     assets_ = assetsDir;
     buttonSets_ = listSets(assets_ + "sets", "buttA.png");
     SDL_Log("Found %d button sets", (int)buttonSets_.size());
-    text_.load(r_, assets_ + "ARLRDBD.TTF", 17.0f);
+    text_.load(r_, assets_ + "fonts/MPLUSRounded1c-ExtraBold.ttf", 17.0f);
     return true;
 }
 

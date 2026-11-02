@@ -31,7 +31,7 @@ Reads the game's own stick value from memory and checks M-speed with the rule th
 - Cut in v5.1: rule profile picker, pulse rate/amplitude, stick smoothing.
 - Planned v5.1: resizable scaling overlay; layout editor on the overlay itself (edit mode, drag buttons, snapping, show/hide, 5 presets, saved layouts); toggleable "game not found" note.
 - Read-only process memory access (the game uses Denuvo; never attach a debugger).
-- ARLRDBD.TTF is a commercial font: do not ship it as a new dependency.
+- Fonts must be openly licensed (M PLUS Rounded 1c, OFL); 5.0 dropped the commercial ARLRDBD.TTF.
 
 ## Brand Commitments
 

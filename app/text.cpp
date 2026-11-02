@@ -26,9 +26,10 @@ bool TextRenderer::load(SDL_Renderer* renderer, const std::string& ttfPath, floa
     ascent_ = asc * scale;
     lineHeight_ = (asc - desc) * scale;
 
-    // White glyphs; alpha thresholded so edges are hard like TTF_RenderText_Solid.
+    // White glyphs with smooth edges. (A hard 50% cutoff, as v4.43 did with
+    // Arial Rounded, breaks the thinner strokes of M PLUS Rounded apart.)
     std::vector<uint32_t> rgba(kAtlas * kAtlas);
-    for (size_t i = 0; i < mono.size(); ++i) rgba[i] = mono[i] >= 128 ? 0xFFFFFFFFu : 0x00FFFFFFu;
+    for (size_t i = 0; i < mono.size(); ++i) rgba[i] = ((uint32_t)mono[i] << 24) | 0x00FFFFFFu;
     atlas_ = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, kAtlas, kAtlas);
     if (!atlas_) return false;
     SDL_UpdateTexture(atlas_, nullptr, rgba.data(), kAtlas * 4);
