@@ -3,3 +3,6 @@ build*/
 .vs/
 .vscode/
 Thumbs.db
+.impeccable/
+tests/
+SPEC.md

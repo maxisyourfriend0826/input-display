@@ -77,6 +77,7 @@ struct App {
     int editIndex = -1;                 // layout open in the editor (index in the full list)
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
+    SDL_Texture* settingsGear = nullptr;
     SDL_Gamepad* pad = nullptr;
     SDL_JoystickID padId = 0;
 
@@ -472,35 +473,26 @@ struct App {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);
         SDL_FRect veil{ 0, 0, (float)w, (float)h };
         SDL_RenderFillRect(renderer, &veil);
-        const float size = 46, x = w - size - 14, y = 14;
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 230);
-        SDL_FRect button{ x, y, size, size };
-        SDL_RenderFillRect(renderer, &button);
-        SDL_SetRenderDrawColor(renderer, 18, 42, 78, 255);
-        const float cx = x + size * .5f, cy = y + size * .5f;
-        // A compact gear: eight teeth, a ring, and its center hole.
-        for (int i = 0; i < 8; ++i) {
-            const float a = i * 3.14159265f / 4.0f;
-            const float x1 = cx + std::cos(a) * 10, y1 = cy + std::sin(a) * 10;
-            const float x2 = cx + std::cos(a) * 15, y2 = cy + std::sin(a) * 15;
-            SDL_RenderLine(renderer, x1, y1, x2, y2);
-        }
-        for (int r = 8; r <= 10; ++r)
-            for (int i = 0; i < 24; ++i) {
-                const float a = i * 3.14159265f / 12.0f, b = (i + 1) * 3.14159265f / 12.0f;
-                SDL_RenderLine(renderer, cx + std::cos(a) * r, cy + std::sin(a) * r,
-                               cx + std::cos(b) * r, cy + std::sin(b) * r);
-            }
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_FRect hole{ cx - 3, cy - 3, 6, 6 };
-        SDL_RenderFillRect(renderer, &hole);
+        if (!settingsGear) return;
+        float imageW = 0, imageH = 0;
+        SDL_GetTextureSize(settingsGear, &imageW, &imageH);
+        if (imageW <= 0 || imageH <= 0) return;
+        const float maxSide = std::min(w, h) * .68f;
+        const float scale = maxSide / std::max(imageW, imageH);
+        const SDL_FRect destination{ w * .5f - imageW * scale * .5f, h * .5f - imageH * scale * .5f,
+                                     imageW * scale, imageH * scale };
+        // The supplied artwork is the source of truth; only its transform is animated.
+        SDL_RenderTextureRotated(renderer, settingsGear, nullptr, &destination,
+                                 (SDL_GetTicks() % 12000) * 360.0 / 12000.0, nullptr, SDL_FLIP_NONE);
     }
 
     bool clickedSettingsAffordance(const SDL_Event& e) const {
         if (e.type != SDL_EVENT_MOUSE_BUTTON_DOWN || e.button.button != SDL_BUTTON_LEFT || SDL_GetWindowFromEvent(&e) != window || !hoverSettings()) return false;
-        int w = 0;
-        SDL_GetWindowSizeInPixels(window, &w, nullptr);
-        return e.button.x >= w - 60 && e.button.x <= w - 14 && e.button.y >= 14 && e.button.y <= 60;
+        int w = 0, h = 0;
+        SDL_GetWindowSizeInPixels(window, &w, &h);
+        const float dx = e.button.x - w * .5f, dy = e.button.y - h * .5f;
+        const float outer = std::min(w, h) * .35f;
+        return dx * dx + dy * dy <= outer * outer;
     }
 
     void onEvent(const SDL_Event& e) {
@@ -793,6 +785,9 @@ int main(int argc, char** argv) {
     }
     SDL_Log("Renderer: %s", SDL_GetRendererName(app.renderer));
 
+    app.settingsGear = loadTexture(app.renderer, app.assets + "gear.png");
+    if (app.settingsGear) SDL_SetTextureScaleMode(app.settingsGear, SDL_SCALEMODE_LINEAR);
+    else SDL_Log("Could not load settings gear: %sgear.png", app.assets.c_str());
     app.overlay.init(app.renderer, app.assets);
     app.overlay.setImagesDir(app.imagesDir());
     app.presets = layouts;
@@ -835,6 +830,7 @@ int main(int argc, char** argv) {
     app.closePad();
     demo.stop();
     app.overlay.shutdown();
+    if (app.settingsGear) SDL_DestroyTexture(app.settingsGear);
     SDL_DestroyRenderer(app.renderer);
     SDL_DestroyWindow(app.window);
     SDL_Quit();

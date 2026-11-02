@@ -1,4 +1,5 @@
 # Gens Input Display 5.0
+
 Based on TurtleMan64's Sonic Input Display v2.2.
 
 Gens Input Display is a controller input overlay for Sonic Generations
@@ -6,10 +7,7 @@ speedrunners. It shows your stick, buttons, triggers and d-pad live, lights up
 when your stick is in the M-Speed zone, and has a transparent background so you
 can put it straight onto your stream in OBS.
 
-5.0 is a full rebuild of Gens Input Display 4.43. It looks the same out of the
-box, uses the same button sets, and reads your old settings.ini, but nearly
-everything else is new.
-
+5.0 is a full rebuild of Gens Input Display 4.43. It looks very similar out of the box but has some long requested features and non-requested features added. This is intended to be just about the final release on my end. I may implement the stick-sensitivity calculations at some point, but it's.. not likely.
 
 ## Getting started
 
@@ -27,10 +25,10 @@ Every change in the settings window shows on the overlay right away. Click
 Hotkeys are gone in 5.0. Everything they used to do is now in the settings
 window, so you can't toggle something by accident mid-run.
 
-
 ## What's new in 5.0
 
 ### More accurate M-Speed light
+
 - The M-Speed check is now a single ring around the stick's center, measured
   against what the game itself does. In testing it matched the game.
 - Your stick is checked every time the controller reports (up to about 1000
@@ -42,6 +40,7 @@ window, so you can't toggle something by accident mid-run.
   ever need to.
 
 ### Reading the game's own stick value
+
 - The display can read the stick value Sonic X Shadow Generations (Steam)
   stores, so you see exactly what the game sees. Pick "Game value" under
   Settings > Input.
@@ -54,6 +53,7 @@ window, so you can't toggle something by accident mid-run.
 - If you run the game as administrator, run the display as administrator too.
 
 ### A new settings window
+
 - Practice: a live preview of your stick with the M-Speed zone drawn on it,
   and the M-Speed light, so you can practice the input. Click it to open it.
 - Display studio: ring shape and colors, stick dot, ghost buttons, button set,
@@ -65,6 +65,7 @@ window, so you can't toggle something by accident mid-run.
   log them to a CSV file next to the exe.
 
 ### Layouts you can edit
+
 - Five ready-made layouts: Buttons left, Buttons right, Split with the ring
   centered, Diamond right and Diamond left.
 - Click "Duplicate and edit" on any of them to make your own. In the layout
@@ -84,12 +85,14 @@ window, so you can't toggle something by accident mid-run.
 - Your layouts are saved in layouts.user.json next to the exe.
 
 ### Resizable overlay
+
 - Drag the edge of the overlay window to make it any size you want. It scales
   evenly, and it stays crisp at 200%, 300% and other whole sizes.
 - Display studio > Window shows the current size, with a "Reset to 100%"
   button.
 
 ### Shapes, colors and the rest
+
 - 8 ring shapes: Rays, Rays + cross, Octagon, Plain, Ring, Clock, Dot only, and
   Target, a new design the community asked for.
 - "Dot only" hides the ring and shows just the stick dot, which is handy
@@ -101,13 +104,14 @@ window, so you can't toggle something by accident mid-run.
 - Ghost buttons now show their opacity as a percentage.
 
 ### Removed
+
 - Toons have been removed.
 - Hotkeys have been removed (see Getting started).
-
 
 ## OBS
 
 ### Windows
+
 1. Add a Game Capture source.
 2. Set Mode to "Capture specific window" and pick "Controller Input".
 3. Tick "Allow Transparency".
@@ -116,17 +120,17 @@ The background color you pick is only for you to see. OBS sees it as
 transparent, so there's nothing to key out.
 
 ### Transparent window
+
 Turn on "Transparent Window" in Display studio > Window and restart the display.
 The window itself becomes see-through on your desktop, which also helps with
 capture methods that don't support "Allow Transparency". If yours still shows a
 background, pick a solid background color and add a Chroma Key filter.
 
-
 ## Button sets
+
 Button sets live in assets/sets/, one numbered folder each. Pick one in Display
 studio > Button set. To add your own, make a new folder in assets/sets/ with
 images that use the same file names (buttA.png, buttB.png and so on).
-
 
 # Credits
 
@@ -151,27 +155,15 @@ https://www.youtube.com/@Avikaielef
 Built with SDL3, Dear ImGui, stb and nlohmann/json, and uses the M PLUS Rounded
 1c font. Their licenses are in THIRD-PARTY-NOTICES.txt.
 
-
 # Change Log
 
-<5.0>   - Full rebuild (see What's new in 5.0)
-        - New M-Speed ring check that matches the game, checked on every controller report
-        - Reads the game's own stick value (Sonic X Shadow Generations, Steam)
-        - New settings window, layout editor, custom images, right stick and resizable overlay
-        - New ring shapes: Dot only and Target
-        - Removed toons and hotkeys
-<4.43>  - Button shadows, button layouts and more ring shapes
-        - M-Speed thresholds can be changed per direction in the menu
-<4.0>   - Massive overhaul
-        - D-pad and triggers separated from the stick and shoulder buttons
-<2.3>   - Fixed crash with Coordinates switch
-        - Capped framerate to help with CPU usage
-        - Adjusted MSpeed equations to include edge cases
-<2.2>   - Fixed massive memory leak
-        - Added MSpeed equations for both regular and 100 Stick Sensitivity Mode
+<5.0> - Full rebuild (see What's new in 5.0) - New M-Speed ring check that matches the game, checked on every controller report - Reads the game's own stick value (Sonic X Shadow Generations, Steam) - New settings window, layout editor, custom images, right stick and resizable overlay - New ring shapes: Dot only and Target - Removed toons and hotkeys
+<4.43> - Button shadows, button layouts and more ring shapes - M-Speed thresholds can be changed per direction in the menu
+<4.0> - Massive overhaul - D-pad and triggers separated from the stick and shoulder buttons
+<2.3> - Fixed crash with Coordinates switch - Capped framerate to help with CPU usage - Adjusted MSpeed equations to include edge cases
+<2.2> - Fixed massive memory leak - Added MSpeed equations for both regular and 100 Stick Sensitivity Mode
 
-
-# For the technical folks
+# For the technical people
 
 Made in C++20 with SDL3, Dear ImGui, stb_image and nlohmann/json. CMake
 downloads pinned, checksummed copies of all of them, so there are no DLLs or
@@ -197,7 +189,7 @@ packages; see `.github/workflows/build.yml` for the list.
 ## How the M-Speed check works
 
 - One ring on the game's stick value: M-Speed when the distance from center is
-  between *ring min* and *ring max* (default 0.030 and 0.077), after the game's
+  between _ring min_ and _ring max_ (default 0.030 and 0.077), after the game's
   per-axis deadzone (default 0.265).
 - The controller's value goes through the same deadzone first, so the pad and
   the game value use one rule. The old 4.43 boxes are kept only in the tests.

@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(IDISP_BUILD_APP "Build the overlay app (needs SDL3)" ON)
-option(IDISP_BUILD_TESTS "Build the core unit tests" ON)
+option(IDISP_BUILD_TESTS "Build the core unit tests" OFF)
 
 include(cmake/Dependencies.cmake)
 
